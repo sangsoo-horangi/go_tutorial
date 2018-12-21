@@ -1,0 +1,18 @@
+POST http://localhost:8000/signup
+{
+	"Id": "c0nstant",
+	"Pw": "hi"
+}
+
+POST http://localhost:8000/signin
+{
+	"Id":"c0nstant",
+	"Pw":"hi"
+}
+
+POST http://localhost:8000/signin
+{
+	"Id":"c0nstantzzang",
+	"Pw":"incorrect"
+}
+
