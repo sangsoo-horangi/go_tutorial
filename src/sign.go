@@ -7,58 +7,60 @@ import "fmt"
 //global values
 var db *sql.DB
 var err error
+type Data struct {
+	number int
+	id string
+	pw string
+}
 
 func signupPage(res http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
-		http.ServeFile(res, req, "signup.html")
+		http.ServeFile(res, req, "enroll.html")
+	} else {
 		return
 	}
 
-	username := req.FormValue("id")
-	password := req.FormValue("pw")
+	fmt.Println("Signup page connection")
 
-	var user string
-	err := db.QueryRow("SELECT id from Accounts where id?", username).Scan(&user)
-
-	switch {
-	case err == sql.ErrNoRows:
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password),bcrypt.DefaultCost)
-		if err != nil {
-			fmt.Println("hashedpassword error")
-			http.Error(res, "Server Error, unable to create your account.", 500)
-			return
-		}
-		_, err = db.Exec("INSERT into Accounts(id,pw) values(?,?)",username,hashedPassword)
-		if err != nil {
-			fmt.Println("insert error")
-			http.Error(res, "Server Error, unable to create your account.",500)
-			return
-		}
-
-		res.Write([]byte("User Created"))
-		return
-
-	case err != nil:
-		fmt.Println("aaaa")
-		http.Error(res, "Server error, unable to create your account.",500)
-		return
-	default:
-		http.Redirect(res,req, "/",301)
-	}
+	fmt.Println("insert success")
 }
 
 func loginPage(res http.ResponseWriter, req *http.Request) {
+	username := "username"
+	password := "password"
+	// my login style is GET
 	if req.Method != "POST" {
 		http.ServeFile(res, req, "login.html")
+		fmt.Println("login page connection")
+		//username = req.FormValue("id")
+		//password = req.FormValue("pw")
+
+		fmt.Println("username = "+username)
+		fmt.Println("password = "+password)
+
+	} else {
+		fmt.Println("POST connection")
 		return
 	}
-	username := req.FormValue("id")
-	password := req.FormValue("pw")
 
+	rows, err := db.Query("SELECT * FROM Accounts")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		data := Data{}
+		err = rows.Scan(&data.number, &data.id, &data.pw)
+		if err != nil {
+			fmt.Println("test")
+			panic(err.Error())
+		}
+		fmt.Println(data)
+	}
 	var databaseUsername string
 	var databasePassword string
 
-	err := db.QueryRow("SELECT id,pw FROM Accounts WHERE id=?", username).Scan(&databaseUsername,&databasePassword)
+	err = db.QueryRow("SELECT id,pw FROM Accounts WHERE id=?", username).Scan(&databaseUsername,&databasePassword)
 
 	if err != nil {
 		res.Write([]byte("not correct"))
@@ -91,7 +93,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	http.HandleFunc("/signup",signupPage)
+	http.HandleFunc("/enroll",signupPage)
 	http.HandleFunc("/login",loginPage)
 	http.HandleFunc("/",homePage)
 	http.ListenAndServe(":8081",nil)

@@ -1,27 +1,23 @@
 package main
+import "fmt"
+import _ "github.com/go-sql-driver/mysql"
+import "database/sql"
 
-import (
-	"fmt"
-	"crypto/md5"
-	"encoding/hex"
-	//"os"
-	"io/ioutil"
-)
-func setMd5Hash()string{
-	//fp, err := os.Open("./db")
-	hasher := md5.Sum([]byte("rootL:1@tcp(127.0.0.1:3306)/user"))
-	return hex.EncodeToString(hasher[:])
-}
-
-func decryptMD5(){
-	fp, err := ioutil.ReadFile("./md5_db")
-	if err != nil {
-		panic(err)
-	}
-	//fmt.Println(hex.EncodeToString(fp))
-	fmt.Printf("%s",fp)
-}
 func main() {
-	decryptMD5()
-}
+	fmt.Println("Go Mysql tutorial")
 
+	db, err := sql.Open("mysql","root:1@tcp(127.0.0.1:3306)/user")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
+	fmt.Println("connect success")
+
+	insert, err := db.Query("INSERT INTO Accounts VALUES('4','testid','hhhh')")
+
+	if err != nil {
+		panic(err.Error())
+	}
+	defer insert.Close()
+	fmt.Println("INSERT success")
+}
