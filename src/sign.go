@@ -1,7 +1,7 @@
 package main
 import "database/sql"
 import _ "github.com/go-sql-driver/mysql"
-import "golang.org/x/crypto/bcrypt"
+//import "golang.org/x/crypto/bcrypt"
 import "net/http"
 import "fmt"
 //global values
@@ -26,19 +26,15 @@ func signupPage(res http.ResponseWriter, req *http.Request) {
 }
 
 func loginPage(res http.ResponseWriter, req *http.Request) {
-	username := "username"
-	password := "password"
 	// my login style is GET
+	var username string
 	if req.Method != "POST" {
 		http.ServeFile(res, req, "login.html")
 		fmt.Println("login page connection")
 		//username = req.FormValue("id")
 		//password = req.FormValue("pw")
 
-		fmt.Println("username = "+username)
-		fmt.Println("password = "+password)
-
-	} else {
+			} else {
 		fmt.Println("POST connection")
 		return
 	}
@@ -48,32 +44,29 @@ func loginPage(res http.ResponseWriter, req *http.Request) {
 		panic(err.Error())
 	}
 	defer rows.Close()
+
+
 	for rows.Next() {
 		data := Data{}
+		// select success
 		err = rows.Scan(&data.number, &data.id, &data.pw)
 		if err != nil {
-			fmt.Println("test")
 			panic(err.Error())
 		}
 		fmt.Println(data)
-	}
-	var databaseUsername string
-	var databasePassword string
+		err = db.QueryRow("SELECT id,pw FROM Accounts WHERE id=?", username).Scan(&data.id,&data.pw)
 
-	err = db.QueryRow("SELECT id,pw FROM Accounts WHERE id=?", username).Scan(&databaseUsername,&databasePassword)
+		if err != nil {
+			res.Write([]byte("not correct"))
+			http.Redirect(res, req, "/login",301)
+			return
+		}
 
-	if err != nil {
-		res.Write([]byte("not correct"))
-		http.Redirect(res, req, "/login",301)
-		return
+		//res.Write([]byte("Hello" + &data.id))
+
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(databasePassword), []byte(password))
-	if err != nil {
-		http.Redirect(res, req, "/login", 301)
-		return
-	}
-	res.Write([]byte("Hello" + databaseUsername))
+	//err = db.QueryRow("SELECT id,pw FROM Accounts WHERE id=?", username).Scan(&databaseUsername,&databasePassword)
 }
 
 

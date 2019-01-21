@@ -7,7 +7,7 @@ import "database/sql"
 import "golang.org/x/crypto/bcrypt"
 import "encoding/json"
 import "net/http"
-import _ "github.com/lib/pq"
+//import _ "github.com/lib/pq"
 const hashCost = 8
 var db *sql.DB
 

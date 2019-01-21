@@ -3,6 +3,12 @@ import "fmt"
 import _ "github.com/go-sql-driver/mysql"
 import "database/sql"
 
+type Data struct{
+	number int
+	id string
+	pw string
+}
+
 func main() {
 	fmt.Println("Go Mysql tutorial")
 
@@ -13,7 +19,7 @@ func main() {
 	defer db.Close()
 	fmt.Println("connect success")
 
-	insert, err := db.Query("INSERT INTO Accounts VALUES('4','testid','hhhh')")
+	insert, err := db.Query("INSERT INTO Accounts(id,pw) values('horangi','1234')")
 
 	if err != nil {
 		panic(err.Error())
